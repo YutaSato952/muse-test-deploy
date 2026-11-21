@@ -3,29 +3,262 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Muse テストデプロイ</title>
+<title>便利ツールボックス | 無料オンラインツール集</title>
+<meta name="description" content="文字数カウント、パスワード生成、QRコード作成、単位変換、税込・割り勘計算、日付計算、JSON整形、エンコード変換、カラー変換、ポモドーロタイマー。全ての処理はブラウザ内で完結し、入力データを外部に送信しません。">
 <style>
-  body { font-family: sans-serif; margin: 0; min-height: 100vh; display: flex; align-items: center; justify-content: center; background: #0f172a; color: #e2e8f0; }
-  main { text-align: center; padding: 2rem; }
-  h1 { font-size: 2rem; margin-bottom: 0.5rem; }
-  p { color: #94a3b8; line-height: 1.8; }
-  .badge { display: inline-block; padding: 0.25rem 0.9rem; border: 1px solid #38bdf8; border-radius: 999px; color: #38bdf8; margin-bottom: 1rem; }
-  #now { color: #38bdf8; font-variant-numeric: tabular-nums; }
+  :root{
+    --bg:#f4f6fb; --surface:#ffffff; --ink:#1c2430; --muted:#5b6b82;
+    --line:#dde4ef; --accent:#2563eb; --accent-soft:#e3ecfd; --ok:#0e9f6e; --warn:#d97706;
+    --radius:14px;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{margin:0;font-family:"Hiragino Kaku Gothic ProN","Hiragino Sans","Noto Sans JP",system-ui,sans-serif;background:var(--bg);color:var(--ink);line-height:1.7}
+  header{background:linear-gradient(120deg,#16233f,#2563eb);color:#fff;padding:2.2rem 1.2rem 1.6rem}
+  .wrap{max-width:1080px;margin:0 auto}
+  header h1{margin:0 0 .3rem;font-size:1.7rem;letter-spacing:.02em}
+  header p{margin:0;color:#c9d9fb;font-size:.95rem}
+  .privacy{display:inline-block;margin-top:.8rem;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.35);padding:.15rem .8rem;border-radius:999px;font-size:.82rem;color:#eaf1ff}
+  .layout{display:flex;gap:1.2rem;max-width:1080px;margin:0 auto;padding:1.2rem;align-items:flex-start}
+  nav{position:sticky;top:1rem;flex:0 0 210px;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:.6rem}
+  nav button{display:flex;width:100%;text-align:left;background:none;border:0;padding:.55rem .7rem;border-radius:9px;font-size:.95rem;color:var(--ink);cursor:pointer;align-items:center;gap:.5rem}
+  nav button:hover{background:var(--accent-soft)}
+  nav button.active{background:var(--accent);color:#fff}
+  main{flex:1;min-width:0}
+  .panel{display:none;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:1.3rem 1.4rem 1.5rem}
+  .panel.active{display:block}
+  .panel h2{margin:.1rem 0 .4rem;font-size:1.25rem}
+  .panel .desc{color:var(--muted);font-size:.9rem;margin:0 0 1rem}
+  label{font-size:.88rem;color:var(--muted);display:block;margin:.7rem 0 .25rem}
+  input[type=text],input[type=number],input[type=date],select,textarea{
+    width:100%;padding:.55rem .7rem;border:1px solid var(--line);border-radius:9px;font-size:1rem;background:#fbfcfe;color:var(--ink);font-family:inherit}
+  textarea{resize:vertical;min-height:130px;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.92rem}
+  input:focus,select:focus,textarea:focus{outline:2px solid var(--accent-soft);border-color:var(--accent)}
+  .row{display:flex;gap:.8rem;flex-wrap:wrap}
+  .row>*{flex:1;min-width:140px}
+  .btn{background:var(--accent);color:#fff;border:0;border-radius:9px;padding:.55rem 1.1rem;font-size:.95rem;cursor:pointer}
+  .btn:hover{filter:brightness(1.08)}
+  .btn.sub{background:#eef2f9;color:var(--ink);border:1px solid var(--line)}
+  .btnrow{display:flex;gap:.6rem;flex-wrap:wrap;margin-top:.9rem}
+  .result{background:#f2f7ff;border:1px solid var(--accent-soft);border-radius:10px;padding:.8rem 1rem;margin-top:1rem;font-size:1.02rem;word-break:break-all}
+  .result:empty{display:none}
+  .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:.7rem;margin-top:1rem}
+  .stat{background:#f8fafd;border:1px solid var(--line);border-radius:10px;padding:.6rem .8rem}
+  .stat b{display:block;font-size:1.25rem}
+  .stat span{font-size:.8rem;color:var(--muted)}
+  .msg{font-size:.9rem;margin-top:.6rem}
+  .msg.ok{color:var(--ok)} .msg.err{color:#dc2626}
+  .check{display:flex;align-items:center;gap:.45rem;font-size:.92rem;color:var(--ink);margin:.3rem 0}
+  .check input{width:auto}
+  input[type=range]{width:100%}
+  .swatch{height:90px;border-radius:10px;border:1px solid var(--line);margin-top:.8rem}
+  .mono{font-family:ui-monospace,Menlo,Consolas,monospace}
+  #qrBox{display:flex;justify-content:center;padding:1rem;background:#fff}
+  #qrBox img,#qrBox canvas{max-width:100%}
+  .timer-face{font-size:3.2rem;text-align:center;font-variant-numeric:tabular-nums;font-weight:700;letter-spacing:.04em;margin:.6rem 0}
+  .bar{height:10px;background:#e8eef7;border-radius:99px;overflow:hidden}
+  .bar>i{display:block;height:100%;background:var(--accent);width:0%}
+  footer{color:var(--muted);font-size:.85rem;text-align:center;padding:1.5rem 1rem 2.5rem}
+  @media (max-width:820px){
+    .layout{flex-direction:column;padding:.9rem}
+    nav{position:static;flex:none;width:100%;display:flex;overflow-x:auto;gap:.3rem}
+    nav button{white-space:nowrap;width:auto}
+  }
 </style>
 </head>
 <body>
-<main>
-  <div class="badge">TEST DEPLOY</div>
-  <h1>デプロイ成功です</h1>
-  <p>このページは Muse が作成し、無料ホスティングへ公開したテストページです。<br>
-  現在時刻（日本時間）: <span id="now">--</span></p>
-</main>
-<script>
-  function tick() {
-    document.getElementById('now').textContent =
-      new Date().toLocaleString('ja-JP', { timeZone: 'Asia/Tokyo' });
-  }
-  tick(); setInterval(tick, 1000);
-</script>
+<header>
+  <div class="wrap">
+    <h1>便利ツールボックス</h1>
+    <p>日常の「ちょっと計算したい」「さっと変換したい」を助ける、無料のオンラインツール集です。</p>
+    <span class="privacy">全ての処理はお使いのブラウザの中で完結します。入力したデータが外部サーバーへ送信されることはありません。</span>
+  </div>
+</header>
+
+<div class="layout">
+  <nav id="toolNav" aria-label="ツール一覧">
+    <button data-tool="count" class="active">✏️ 文字数カウント</button>
+    <button data-tool="password">🔐 パスワード生成</button>
+    <button data-tool="qr">🔳 QRコード作成</button>
+    <button data-tool="unit">🔁 単位変換</button>
+    <button data-tool="money">🧾 税込・割り勘計算</button>
+    <button data-tool="date">📅 日付計算</button>
+    <button data-tool="json">{ } JSON整形</button>
+    <button data-tool="encode">🔤 エンコード変換</button>
+    <button data-tool="color">🎨 カラー変換</button>
+    <button data-tool="timer">⏱️ ポモドーロタイマー</button>
+  </nav>
+
+  <main>
+    <section class="panel active" id="tool-count">
+      <h2>文字数カウント</h2>
+      <p class="desc">入力と同時に集計します。原稿用紙換算や読了時間の目安にもどうぞ。</p>
+      <textarea id="countInput" placeholder="ここに文章を入力してください"></textarea>
+      <div class="stats">
+        <div class="stat"><b id="stChars">0</b><span>文字数（空白・改行込み）</span></div>
+        <div class="stat"><b id="stNoSpace">0</b><span>文字数（空白・改行なし）</span></div>
+        <div class="stat"><b id="stLines">0</b><span>行数</span></div>
+        <div class="stat"><b id="stWords">0</b><span>単語数（空白区切り）</span></div>
+        <div class="stat"><b id="stGenko">0</b><span>原稿用紙（400字）枚数</span></div>
+        <div class="stat"><b id="stRead">0分</b><span>読了目安（500字/分）</span></div>
+      </div>
+      <div class="btnrow"><button class="btn sub" id="countClear">クリア</button></div>
+    </section>
+
+    <section class="panel" id="tool-password">
+      <h2>パスワード生成</h2>
+      <p class="desc">暗号学的に安全な乱数で生成します。生成したパスワードはどこにも送信されません。</p>
+      <label>長さ：<span id="pwLenVal">16</span> 文字</label>
+      <input type="range" id="pwLen" min="8" max="64" value="16">
+      <label class="check"><input type="checkbox" id="pwLower" checked> 小文字（a-z）</label>
+      <label class="check"><input type="checkbox" id="pwUpper" checked> 大文字（A-Z）</label>
+      <label class="check"><input type="checkbox" id="pwDigit" checked> 数字（0-9）</label>
+      <label class="check"><input type="checkbox" id="pwSymbol" checked> 記号（!@#$% など）</label>
+      <label class="check"><input type="checkbox" id="pwNoAmb"> 紛らわしい文字を除く（0/O、1/l/I など）</label>
+      <div class="btnrow"><button class="btn" id="pwGen">生成する</button></div>
+      <div class="result mono" id="pwOut"></div>
+      <div class="msg" id="pwInfo"></div>
+      <div class="btnrow"><button class="btn sub" id="pwCopy">コピー</button></div>
+    </section>
+
+    <section class="panel" id="tool-qr">
+      <h2>QRコード作成</h2>
+      <p class="desc">URLやテキストからQRコードを作ります。生成はブラウザ内で行われます。</p>
+      <label>内容（URL・テキスト）</label>
+      <input type="text" id="qrText" placeholder="https://example.com">
+      <div class="row">
+        <div><label>サイズ</label>
+          <select id="qrSize"><option value="180">小（180px）</option><option value="256" selected>中（256px）</option><option value="380">大（380px）</option></select></div>
+        <div><label>誤り訂正レベル</label>
+          <select id="qrLevel"><option value="L">L（約7%）</option><option value="M" selected>M（約15%）</option><option value="Q">Q（約25%）</option><option value="H">H（約30%）</option></select></div>
+      </div>
+      <div class="btnrow"><button class="btn" id="qrGen">QRコードを作る</button></div>
+      <div id="qrBox"></div>
+      <div class="msg err" id="qrMsg"></div>
+    </section>
+
+    <section class="panel" id="tool-unit">
+      <h2>単位変換</h2>
+      <p class="desc">長さ・重さ・温度を相互に変換します。</p>
+      <label>種類</label>
+      <select id="unitCat">
+        <option value="length">長さ</option>
+        <option value="weight">重さ</option>
+        <option value="temp">温度</option>
+      </select>
+      <div class="row">
+        <div><label>変換元の値</label><input type="number" id="unitVal" value="1" step="any"></div>
+        <div><label>変換元の単位</label><select id="unitFrom"></select></div>
+        <div><label>変換先の単位</label><select id="unitTo"></select></div>
+      </div>
+      <div class="btnrow"><button class="btn sub" id="unitSwap">単位を入れ替える</button></div>
+      <div class="result" id="unitOut"></div>
+    </section>
+
+    <section class="panel" id="tool-money">
+      <h2>税込・割引・割り勘計算</h2>
+      <p class="desc">消費税の計算、割引後の価格、割り勘の1人あたり金額をまとめて計算します。</p>
+      <div class="row">
+        <div><label>金額（円）</label><input type="number" id="moneyPrice" value="1000" min="0" step="any"></div>
+        <div><label>この金額は</label>
+          <select id="moneyKind"><option value="ex">税抜</option><option value="in">税込</option></select></div>
+        <div><label>税率</label>
+          <select id="moneyTax"><option value="0.10">10%</option><option value="0.08">8%（軽減税率）</option></select></div>
+        <div><label>割引率（%）</label><input type="number" id="moneyOff" value="0" min="0" max="100" step="any"></div>
+        <div><label>割り勘の人数</label><input type="number" id="moneyPeople" value="1" min="1" step="1"></div>
+      </div>
+      <div class="result" id="moneyOut"></div>
+    </section>
+
+    <section class="panel" id="tool-date">
+      <h2>日付計算</h2>
+      <p class="desc">2つの日付の間隔と、基準日から◯日後の日付を求めます。</p>
+      <h3 style="margin:.6rem 0 .2rem;font-size:1rem">日数の差</h3>
+      <div class="row">
+        <div><label>開始日</label><input type="date" id="dateA"></div>
+        <div><label>終了日</label><input type="date" id="dateB"></div>
+      </div>
+      <div class="result" id="dateDiffOut"></div>
+      <h3 style="margin:1.2rem 0 .2rem;font-size:1rem">◯日後・◯日前</h3>
+      <div class="row">
+        <div><label>基準日</label><input type="date" id="dateBase"></div>
+        <div><label>日数</label><input type="number" id="dateN" value="30" step="1"></div>
+        <div><label>方向</label>
+          <select id="dateDir"><option value="1">日後</option><option value="-1">日前</option></select></div>
+      </div>
+      <div class="result" id="dateAddOut"></div>
+    </section>
+
+    <section class="panel" id="tool-json">
+      <h2>JSON整形</h2>
+      <p class="desc">JSONの整形・圧縮・検証を行います。データは外部に送信されません。</p>
+      <textarea id="jsonInput" placeholder='{"name":"example","items":[1,2,3]}'></textarea>
+      <div class="btnrow">
+        <button class="btn" id="jsonFmt">整形する</button>
+        <button class="btn sub" id="jsonMin">圧縮する</button>
+        <button class="btn sub" id="jsonCopy">結果をコピー</button>
+      </div>
+      <div class="msg" id="jsonMsg"></div>
+    </section>
+
+    <section class="panel" id="tool-encode">
+      <h2>エンコード変換</h2>
+      <p class="desc">Base64とURLエンコードの相互変換を行います（UTF-8対応）。</p>
+      <textarea id="encInput" placeholder="変換したいテキストを入力してください"></textarea>
+      <div class="btnrow">
+        <button class="btn" id="encB64Enc">Base64へ変換</button>
+        <button class="btn sub" id="encB64Dec">Base64から戻す</button>
+        <button class="btn" id="encUrlEnc">URLエンコード</button>
+        <button class="btn sub" id="encUrlDec">URLデコード</button>
+      </div>
+      <label>結果</label>
+      <textarea id="encOutput" readonly></textarea>
+      <div class="msg" id="encMsg"></div>
+    </section>
+
+    <section class="panel" id="tool-color">
+      <h2>カラー変換</h2>
+      <p class="desc">HEX・RGB・HSLの相互変換とプレビューです。</p>
+      <div class="row">
+        <div><label>HEX</label><input type="text" id="colorHex" value="#2563eb" class="mono"></div>
+        <div><label>色を選ぶ</label><input type="color" id="colorPick" value="#2563eb" style="width:100%;height:42px;border:1px solid var(--line);border-radius:9px;background:#fff"></div>
+      </div>
+      <label>R（赤）<span id="rVal">37</span></label><input type="range" id="colorR" min="0" max="255" value="37">
+      <label>G（緑）<span id="gVal">99</span></label><input type="range" id="colorG" min="0" max="255" value="99">
+      <label>B（青）<span id="bVal">235</span></label><input type="range" id="colorB" min="0" max="255" value="235">
+      <div class="swatch" id="colorSwatch"></div>
+      <div class="result mono" id="colorOut"></div>
+    </section>
+
+    <section class="panel" id="tool-timer">
+      <h2>ポモドーロタイマー</h2>
+      <p class="desc">25分集中＋5分休憩の作業リズムを支援します。終了すると音とタイトルでお知らせします。</p>
+      <div class="btnrow" style="justify-content:center">
+        <button class="btn sub" data-preset="25">集中 25分</button>
+        <button class="btn sub" data-preset="5">休憩 5分</button>
+        <button class="btn sub" data-preset="50">集中 50分</button>
+        <button class="btn sub" data-preset="10">休憩 10分</button>
+      </div>
+      <div class="timer-face" id="timerFace">25:00</div>
+      <div class="bar"><i id="timerBar"></i></div>
+      <div class="row" style="margin-top:1rem">
+        <div><label>カスタム（分）</label><input type="number" id="timerCustom" value="25" min="1" max="999"></div>
+      </div>
+      <div class="btnrow" style="justify-content:center">
+        <button class="btn" id="timerStart">スタート</button>
+        <button class="btn sub" id="timerPause">一時停止</button>
+        <button class="btn sub" id="timerReset">リセット</button>
+      </div>
+      <div class="msg" id="timerMsg" style="text-align:center"></div>
+    </section>
+  </main>
+</div>
+
+<footer>
+  便利ツールボックス ― 全ての処理はブラウザ内で完結します。入力データの収集・送信は行いません。
+</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script src="app.js"></script>
 </body>
 </html>
